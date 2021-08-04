@@ -7,6 +7,10 @@ const http = require('http');
 //socketIO 모듈
 const socketIO = require('socket.io')
 
+//textserver 연결
+const {generateMessage} = require('./src/utils/message');
+
+
 //http 서버 인자로 express 넣기
 let server = http.createServer(app)
 //socketIO 서버 연결
@@ -15,38 +19,23 @@ let io = socketIO(server)
 //public 미들웨어 
 const path = require('path');
 const { Socket } = require('dgram');
-const PublicPath = path.join(__dirname , '/Chat-app/public');
+const PublicPath = path.join(__dirname , '/src/public');
 app.use(express.static(PublicPath))
 
 //io 연결
 io.on('connection' , (socket) => {
     console.log('A new user just connected');
 
-    socket.emit('newMessage' , {
-        from: "Admin",
-        text: "Welcome to the chat app!",
-        createdAt: new Date().getTime()
-    })
+    socket.emit('newMessage' , generateMessage('admin' , 'Welcome to the Chat app!'))
+    
+    socket.broadcast.emit('newMessage' , generateMessage('Admin' , "New User Joined"))
 
-    
-    socket.broadcast.emit('newMessage' , {
-        from: "Admin",
-        text: "New User Joined!",
-        createdAt: new Date().getTime()
-    })
-    
-    socket.on('createMessage' , (message) => {
+    socket.on('createMessage' , (message , callback) => {
         console.log('createMessage' , message)
-        io.emit('newMessage' , {
-            from: message.from,
-            text: message.text,
-            createdAt: new Date().getTime()
-        })
-
-
-       
+        io.emit('newMessage' , generateMessage(message.from , message.text))
+        callback('This is The Server');
     })
-    
+
     socket.on('disconnect' , () => {
         console.log('User was disconnected')
     })    
