@@ -8,7 +8,7 @@ const http = require('http');
 const socketIO = require('socket.io')
 
 //textserver 연결
-const {generateMessage} = require('./src/utils/message');
+const {generateMessage , generateLocationMessage} = require('./src/utils/message');
 
 
 //http 서버 인자로 express 넣기
@@ -35,6 +35,14 @@ io.on('connection' , (socket) => {
         io.emit('newMessage' , generateMessage(message.from , message.text))
         callback('This is The Server');
     })
+
+    socket.on('createLocationMessage' , (coords) => {
+        io.emit('newLocationMessage' , generateLocationMessage('Admin' , coords.lat , coords.lng))
+    })
+
+
+
+
 
     socket.on('disconnect' , () => {
         console.log('User was disconnected')
