@@ -11,29 +11,60 @@ socket.on('disconnect' , () => {
 })
 
 socket.on('newMessage' , function (message){
-    console.log('newMessage' ,  message);
-    let li = document.createElement('li');
+    const formattedTime = moment(message.createdAt).format('LT')
+    const template = document.getElementById('message-template').innerHTML;
+    const html = Mustache.render(template , {
+        from: message.from,
+        text: message.text,
+        createdAt: formattedTime
+    });
 
-    li.innerText = `${message.from}: ${message.text}`;
+    const div = document.createElement('div');
+    div.innerHTML = html;
+
+    document.getElementById('messages').appendChild(div);
+
+    // const formattedTime = moment(message.createdAt).format('LT')
+    // console.log('newMessage' ,  message);
+    // let li = document.createElement('li');
+
+    // li.innerText = `${message.from} ${formattedTime}: ${message.text}`;
 
 
-    document.querySelector('body').appendChild(li)
+    // document.querySelector('body').appendChild(li)
 });
 
 
 
 socket.on('newLocationMessage' , function (message){
+    const formattedTime = moment(message.createdAt).format('LT')
     console.log('newLocationMessage' ,  message);
-    let li = document.createElement('li');
-    let a = document.createElement('a');
-    a.setAttribute('target' , '_blank');
-    a.setAttribute('href' , message.url)
-    a.innerText = 'my current location'
+    const template = document.getElementById('location-message-template').innerHTML;
+    const html = Mustache.render(template , {
+        from: message.from,
+        url: message.url,
+        createdAt: formattedTime
+    });
 
-    li.appendChild(a); 
+    const div = document.createElement('div');
+    div.innerHTML = html;
+
+    document.getElementById('messages').appendChild(div);
+    
+    
+    
+    
+    // let li = document.createElement('li');
+    // let a = document.createElement('a');
+    // li.innerText = `${message.from}  ${formattedTime}`;
+    // a.setAttribute('target' , '_blank');
+    // a.setAttribute('href' , message.url)
+    // a.innerText = 'my current location'
+
+    // li.appendChild(a); 
 
 
-    document.querySelector('body').appendChild(li)
+    // document.querySelector('body').appendChild(li)
 });
 
 
