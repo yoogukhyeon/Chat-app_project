@@ -1,8 +1,12 @@
 let socket = io();
 
 function scrollToBottom(){
-    let messages = document.querySelector('#messages').lastElementChild;
-    messages.scrollIntoView();
+    let messagess = document.querySelector('#messages')
+    let messages = document.querySelector('#messages').lastChild
+    messagess.addEventListener('click' , function(){
+        messages.scrollIntoView({behavior: "smooth" , block: "end" , inline: "nearest"});
+    })
+        
 }
 
 
