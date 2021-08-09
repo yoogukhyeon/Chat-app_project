@@ -1,7 +1,12 @@
-
-
-
 let socket = io();
+
+function scrollToBottom(){
+    let messages = document.querySelector('#messages').lastElementChild;
+    messages.scrollIntoView();
+}
+
+
+
 socket.on('connect' , () => {
     console.log('connected to server');
 })
@@ -23,7 +28,7 @@ socket.on('newMessage' , function (message){
     div.innerHTML = html;
 
     document.getElementById('messages').appendChild(div);
-
+    scrollToBottom();
     // const formattedTime = moment(message.createdAt).format('LT')
     // console.log('newMessage' ,  message);
     // let li = document.createElement('li');
