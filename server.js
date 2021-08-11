@@ -9,6 +9,8 @@ const socketIO = require('socket.io')
 
 //textserver 연결
 const {generateMessage , generateLocationMessage} = require('./src/utils/message');
+//string 유효검사 and 문자공백
+const {isRealString} = require('./src/utils/isRealString')
 
 
 //http 서버 인자로 express 넣기
@@ -26,9 +28,19 @@ app.use(express.static(PublicPath))
 io.on('connection' , (socket) => {
     console.log('A new user just connected');
 
-    socket.emit('newMessage' , generateMessage('admin' , 'Welcome to the Chat app!'))
+    socket.on('join' , (params , callback) => {
+        if(!isRealString(params.name) || !isRealString(params.room)){
+            callback('이름과 방제목을 입력해주세요!');
+        }
+
+        socket.join(params.room);
+
+        socket.emit('newMessage' , generateMessage('admin' , 'Welcome to the Chat app!'))
     
-    socket.broadcast.emit('newMessage' , generateMessage('Admin' , "New User Joined"))
+        socket.broadcast.emit('newMessage' , generateMessage('Admin' , "New User Joined"));
+
+        callback();
+    })
 
     socket.on('createMessage' , (message , callback) => {
         console.log('createMessage' , message)
