@@ -33,6 +33,8 @@ io.on('connection' , (socket) => {
             callback('이름과 방제목을 입력해주세요!');
         }
 
+
+    
         socket.join(params.room);
 
         socket.emit('newMessage' , generateMessage('admin' , 'Welcome to the Chat app!'))

@@ -4,6 +4,7 @@ const {isRealString} = require('./isRealString');
 
 
 describe('is Read String' , () => {
+
     it('should reject non-string values.', () => {
         let res = isRealString(65)
         expect(res).toBe(false)
@@ -18,8 +19,5 @@ describe('is Read String' , () => {
         let res = isRealString('   YOO    ')
         expect(res).toBe(true)
     })
-
-
-  
-
+        
 })
