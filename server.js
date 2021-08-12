@@ -11,12 +11,15 @@ const socketIO = require('socket.io')
 const {generateMessage , generateLocationMessage} = require('./src/utils/message');
 //string 유효검사 and 문자공백
 const {isRealString} = require('./src/utils/isRealString')
-
+//users 클래스 가져오기 
+const {Users} = require('./src/utils/users');
 
 //http 서버 인자로 express 넣기
 let server = http.createServer(app)
 //socketIO 서버 연결
 let io = socketIO(server)
+//사용자 new 생성자 생성 
+let users = new Users();
 
 //public 미들웨어 
 const path = require('path');
@@ -30,39 +33,47 @@ io.on('connection' , (socket) => {
 
     socket.on('join' , (params , callback) => {
         if(!isRealString(params.name) || !isRealString(params.room)){
-            callback('이름과 방제목을 입력해주세요!');
+            return  callback('이름과 방제목을 입력해주세요!');
         }
-
-
-    
         socket.join(params.room);
+        users.removeUser(socket.id);
+        users.addUser(socket.id , params.name , params.room)
 
-        socket.emit('newMessage' , generateMessage('admin' , 'Welcome to the Chat app!'))
+        io.to(params.room).emit('updateUsersList' , users.getUserList(params.room));
+
+        socket.emit('newMessage' , generateMessage('운영자 유국현' , `${params.name}님은 ${params.room} 채팅앱에 입장했습니다!`))
     
-        socket.broadcast.emit('newMessage' , generateMessage('Admin' , "New User Joined"));
+        socket.broadcast.to(params.room).emit('newMessage' , generateMessage('운영자 유국현' , `새로운 ${params.name}님이 참여했습니다`));
 
         callback();
     })
 
     socket.on('createMessage' , (message , callback) => {
-        console.log('createMessage' , message)
-        io.emit('newMessage' , generateMessage(message.from , message.text))
+        let user = users.getUser(socket.id);
+
+        if(user && isRealString(message.text)){
+            io.to(user.room).emit('newMessage' , generateMessage(user.name , message.text))
+        }
         callback('This is The Server');
     })
 
     socket.on('createLocationMessage' , (coords) => {
-        io.emit('newLocationMessage' , generateLocationMessage('Admin' , coords.lat , coords.lng))
+        let user = users.getUser(socket.id);
+
+        if(user){
+            io.to(user.room).emit('newLocationMessage' , generateLocationMessage('Admin' , coords.lat , coords.lng))
+        }
     })
 
-
-
-
-
     socket.on('disconnect' , () => {
-        console.log('User was disconnected')
+        let user = users.removeUser(socket.id);
+
+        if(user){
+            io.to(user.room).emit('updateUsersList', users.getUserList(user.room))
+            io.to(user.room).emit('newMessage' , generateMessage('관리자' , `${user.name}님은 ${user.room} 채팅room을 떠났습니다!`))
+        }
     })    
 })
-
 
 
 const port = process.env.PORT || 5000;

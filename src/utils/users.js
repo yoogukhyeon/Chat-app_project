@@ -1,12 +1,4 @@
-// [{
-//     id: 'fefwfwefwefwfwef',
-//     name: 'yoo',
-//     room: 'node.js'
-// }]
-
-
-
-
+//사용자를 저장하는 로직
 class Users {
     constructor(){
         this.users = []

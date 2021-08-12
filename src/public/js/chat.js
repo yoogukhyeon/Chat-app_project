@@ -5,8 +5,7 @@ function scrollToBottom(){
     let messages = document.querySelector('#messages').lastChild
     messagess.addEventListener('click' , function(){
         messages.scrollIntoView({behavior: "smooth" , block: "end" , inline: "nearest"});
-    })
-        
+    })    
 }
 
 socket.on('connect' , () => {
@@ -23,10 +22,26 @@ socket.on('connect' , () => {
     })
 })
 
-
 socket.on('disconnect' , () => {
     console.log('disconnect from server')
+});
+
+socket.on('updateUsersList' , function(users){
+    let ol = document.createElement('ol');
+
+    users.forEach(function(user){
+        let li = document.createElement('li');
+
+        li.innerHTML = user;
+
+        ol.appendChild(li);
+    })
+
+    let userList = document.querySelector('#users');
+    userList.innerHTML = "";
+    userList.appendChild(ol)
 })
+
 
 socket.on('newMessage' , function (message){
     const formattedTime = moment(message.createdAt).format('LT')
@@ -36,23 +51,13 @@ socket.on('newMessage' , function (message){
         text: message.text,
         createdAt: formattedTime
     });
-
     const div = document.createElement('div');
     div.innerHTML = html;
 
     document.getElementById('messages').appendChild(div);
     scrollToBottom();
-    // const formattedTime = moment(message.createdAt).format('LT')
-    // console.log('newMessage' ,  message);
-    // let li = document.createElement('li');
-
-    // li.innerText = `${message.from} ${formattedTime}: ${message.text}`;
-
-
-    // document.querySelector('body').appendChild(li)
+ 
 });
-
-
 
 socket.on('newLocationMessage' , function (message){
     const formattedTime = moment(message.createdAt).format('LT')
@@ -68,27 +73,8 @@ socket.on('newLocationMessage' , function (message){
     div.innerHTML = html;
 
     document.getElementById('messages').appendChild(div);
-    
-    
-    
-    
-    // let li = document.createElement('li');
-    // let a = document.createElement('a');
-    // li.innerText = `${message.from}  ${formattedTime}`;
-    // a.setAttribute('target' , '_blank');
-    // a.setAttribute('href' , message.url)
-    // a.innerText = 'my current location'
-
-    // li.appendChild(a); 
-
-
-    // document.querySelector('body').appendChild(li)
+     
 });
-
-
-
-
-
 
 socket.emit('createMessage' , {
     from: 'John',
@@ -96,8 +82,6 @@ socket.emit('createMessage' , {
 }, function(message){
     console.log('server got it.' , message)
 })
-
-
 
 document.querySelector('#submit-btn').addEventListener('click' , (e) => {
       e.preventDefault();
@@ -109,8 +93,6 @@ document.querySelector('#submit-btn').addEventListener('click' , (e) => {
 
       })
       document.querySelector('input[name="message"]').value = "";
-       
-  
 })
 
 
@@ -127,7 +109,5 @@ document.querySelector('#send-location').addEventListener('click' , (e) => {
    } , function(){
        alert('Unable to fetch location')
    })
-
-
 
 })
